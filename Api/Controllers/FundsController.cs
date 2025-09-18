@@ -8,11 +8,39 @@
     using Newtonsoft.Json;
     using System.IO;
     using Api.DataFiles;
+    using Core.API;
 
+    [Route("api/[controller]")]
     public class FundsController : Controller
     {
+        private readonly IFunds _funds;
+
+        public FundsController(IFunds funds)
+        {
+            _funds = funds;
+        }
         [Route("get-funds")]
+        [HttpGet("{id}")]
         public IActionResult GetFunds(string id)
+        {
+            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development" )
+            {
+                return this.Ok(GetFundsFromFile(id));
+            }
+            return this.Ok(GetFundsFromRemoteService(id));
+        }
+
+        [Route("get-managerfunds")]
+        public IActionResult GetManagerFunds(string manager)
+        {
+           if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+            {
+                return this.Ok(GetManagerFundsFromFile(manager));
+            }
+            return this.Ok(GetManagerFundsFromRemoteService(manager));
+        }
+
+        private IEnumerable<FundDetails> GetFundsFromFile(string id)
         {
             var file = System.IO.File.ReadAllTextAsync("./DataFiles/funds.json").Result;
 
@@ -20,21 +48,41 @@
 
             if (id != null)
             {
-                return this.Ok(funds.Single(x => x.MarketCode == id));
+                return funds.Where(x => x.MarketCode == id).AsEnumerable();
             }
-            
-            return this.Ok(funds);
+
+            return funds;       
         }
 
-        [Route("get-managerfunds")]
-        public IActionResult GetManagerFunds(string manager)
+        private IEnumerable<FundDetails> GetFundsFromRemoteService(string id)
+        {
+            var funds = _funds.GetFundDetails(id);
+            if (funds == null || !funds.Any())
+            {
+                return Enumerable.Empty<FundDetails>();
+            }
+
+            return (IEnumerable<FundDetails>)funds;
+        }
+
+        private IEnumerable<FundDetails> GetManagerFundsFromFile(string manager)
         {
             var file = System.IO.File.ReadAllTextAsync("./DataFiles/funds.json").Result;
-
             var funds = JsonConvert.DeserializeObject<List<FundDetails>>(file);
-
-            return this.Ok(funds.Where(x => x.Name == manager));
+            if (manager != null)
+            {
+                return funds.Where(x => x.FundManager.Equals(manager, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+            return funds;
         }
-
+        private IEnumerable<FundDetails> GetManagerFundsFromRemoteService(string manager)
+        {
+            var funds = _funds.GetManagerFunds(manager);
+            if (funds == null || !funds.Any())
+            {
+                return Enumerable.Empty<FundDetails>();
+            }
+            return (IEnumerable<FundDetails>)funds;
+        }
     }
 }

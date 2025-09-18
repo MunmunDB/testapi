@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication;
+﻿using Core.API;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace Api
 {
@@ -25,6 +18,8 @@ namespace Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddTransient<IService, Service>();
+            services.AddTransient<IFunds, Funds>();            
             services.AddMvc();
         }
 
@@ -36,7 +31,22 @@ namespace Api
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseMvc();
+
+            app.UseMvc(routes =>
+            {
+                // 1. Map the root URL (“”) to Funds/get-funds with default id=aaa
+                routes.MapRoute(
+                    name: "s",
+                    template: "",
+                    defaults: new { controller = "Funds", action = "get-funds"}
+                );
+
+                // 2. Your normal API routes
+                routes.MapRoute(
+                    name: "api",
+                    template: "api/{controller}/{action}/{id?}"
+                );
+            });
         }
     }
 }

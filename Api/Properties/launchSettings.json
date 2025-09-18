@@ -11,6 +11,7 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
+      "launchUrl": "api/Funds/get-funds/",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
@@ -18,6 +19,7 @@
     "Api": {
       "commandName": "Project",
       "launchBrowser": true,
+      "launchUrl": "api/Funds/get-funds/?id=",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },

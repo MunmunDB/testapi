@@ -1,0 +1,25 @@
+﻿version: "3.8"
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: myapi:prod
+    restart: unless-stopped
+    ports:
+      - "50810:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:80
+      - EXTERNAL_API_BASE_URL=${EXTERNAL_API_BASE_URL}
+      - EXTERNAL_API_SCOPE=${EXTERNAL_API_SCOPE}
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail http://localhost/api/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+networks:
+  default:
+    driver: bridge

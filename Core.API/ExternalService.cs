@@ -1,21 +1,26 @@
 ﻿using Core.Api.Entities;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.WebRequestMethods;
 
 namespace Core.API
 {
-    public class Service : IService
+    public class ExternalService : IExternalService
     {
         private readonly string _url;
+        private static readonly HttpClient _httpClient;
+        //private readonly AzureServiceTokenProvider _tokenProvider;  
 
-        public Service()
+        public ExternalService(HttpClient http, IOptions<ExternalApiOptions> opts)
         {
             // Remote URL to fetch fund details  --- this is a static URL for the purpose of this test
-            _url = "https://raw.githubusercontent.com/StarlingBank/StarlingTechTest/master/data/funds.json";
+            _url = opts.Value.Url;
         }
 
         public async Task<IEnumerable<FundDetails>> GetAllAsync()
@@ -35,6 +40,12 @@ namespace Core.API
         {
             using (var http = new HttpClient())
             {
+                //TO Do
+                // To use a azure token service , uncomment the following lines
+                //var accessToken = await _tokenProvider.GetAccessTokenAsync(_scope);
+                //_http.DefaultRequestHeaders.Authorization =
+                //    new AuthenticationHeaderValue("Bearer", accessToken);
+                
                 // 1. Call the remote URL
                 var response = await http.GetAsync(_url);
                 response.EnsureSuccessStatusCode();

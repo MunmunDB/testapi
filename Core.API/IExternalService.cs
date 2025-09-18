@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Core.API
 {
-    public interface IService
+    public interface IExternalService
     {
         Task<IEnumerable<FundDetails>> GetAllAsync();
     }

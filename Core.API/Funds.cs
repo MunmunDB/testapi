@@ -9,9 +9,9 @@ namespace Core.API
 {
     public class Funds : IFunds
     {
-        private readonly IService _service;
+        private readonly IExternalService _service;
 
-        public Funds(IService service)
+        public Funds(IExternalService service)
         {
             
             _service = service;

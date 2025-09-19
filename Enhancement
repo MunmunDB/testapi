@@ -1,0 +1,46 @@
+The exisitng project is target to .net core 2.0, to be able to make it production ready need to migrate to latest .NET core 8.0. 
+This is mainly because there is no support for 2.0 Core projects and the GitHub has a depreciated image for 2.0 which is no longer support by Microsoft. 
+
+Enchancement to the current code structure :
+     Adding Core.API as a layer which contains the Business + Entities + Domain Models. This is a part of CLEAN architecture
+     Adding service registration to implement DI of all the implementations throughout the solution. 
+     Seperating the Business Logic to connect to external API to  a interface implementing HTTPclient & Azuretoken service
+     API versioning to the controller to maintain versions and add enhancements
+     API authorization is to be implemented using MVC filters which allows custom role restrictions
+     Handling exception in controller or the middleware to be able to handle failure gracefully
+
+Testable Units :
+    Adding unit test project to implement unit testing of the business logic.
+    With the code based upgraded to .net core 8.0 , test server can be implemented in test project
+    Mocking the external calls will allow to test the individual funationality 
+    Playwrite automation can be implemented for integration testing
+
+
+Production ready :
+    Locally :
+    Dockerfile to make it ready for containarization & generate the image. Small image and with a version defined in docker
+    Docker-compose.yaml file which are used in production/ UAT  environments to run the container image
+    environment variable in yaml files to configure the external endpoints and Azure token service for authorization
+    Adding Healthcheck to the API for the container service to monitor the service at regular intervals. 
+    Adding logs to monitor the event processing 
+
+    Terminal in Cloud Cluster :
+    Check for the cluster connection - kubectl cluster-info
+    To add the config file for the API in cluster - kubectl create configmap api-config --from-file=config.json
+    Create a deployment.yaml copying from the docker-compose.yaml 
+    Apply deployment.yaml to the cluster cloud - kubectl apply -f deployment.yaml
+    Check pods & service - kubectl get pods kubectl get svc
+
+
+Ideal :
+   multiple replicas
+   livesness and reainess probes
+   secrets for sensitive json
+   Azure load Balancer - using Kubernetic service of type load balancer
+   use Ingress Controller for handling multiple APIs not in same cluster and using https mostly for secured channel
+   TLS to let the API run over HTTPS
+   Use tracing - OpenTelemetry
+   Run pods with non-root users
+   
+
+
